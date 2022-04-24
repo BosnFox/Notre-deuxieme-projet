@@ -137,7 +137,7 @@ def find_user(update, context):
             update.message.reply_text('Пользователь не найден')
 
 
-def show_userpost(update, context):
+def show_user_post(update, context):
     line = update.message.text.split()[1:]
     login, *number = line
     number = list(map(int, number))
@@ -201,7 +201,7 @@ def help(update, context):
                               'если нет, то выведет пользователей, чьи логины содержать данную '
                               'строку\n\n'
                               'Пример:  /find_user NewUser123\n\n'
-                              '"/show_userpost [user]"\n\n')
+                              '"/show_user_post [user]"\n\n')
 
 
 if __name__ == '__main__':
@@ -217,7 +217,7 @@ if __name__ == '__main__':
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('register', register))
     dp.add_handler(CommandHandler('find_user', find_user))
-    dp.add_handler(CommandHandler('show_userpost', show_userpost))
+    dp.add_handler(CommandHandler('show_user_post', show_user_post))
     dp.add_handler(CommandHandler('help', help))
 
     dp.add_handler(photo_handler)
