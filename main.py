@@ -2,7 +2,7 @@ import logging
 from telegram.ext import Updater, MessageHandler, Filters
 from telegram.ext import CommandHandler
 from telegram import ReplyKeyboardMarkup
-from random import randint, choice
+from random import choice, randint
 import requests
 import json
 from pymorphy2 import MorphAnalyzer
@@ -16,8 +16,11 @@ TOKEN = '5159855662:AAH1JR-a_ZjypmtsiaqsEPVfTfYQSvJHGp8'
 
 
 def start(update, context):
-    update.message.reply_text('Здесь будет описание:', reply_markup=markup)
-    context.bot.send_photo(update.message.chat_id, photo=open(f'news{randint(1, 5)}.jpg', 'rb'))
+    update.message.reply_text('Вас приветствует авторское програмное обеспечение, '
+                              'обеспечивающее Вас возможностью беспрепятственно публиковать '
+                              'свои записи, а также просматривать публикации других пользователей.'
+                              ' Для большей осведомлённости рекомендуем начать взаимодействие с'
+                              ' программным обеспечием через команду /help', reply_markup=markup)
 
 
 def register(update, context):
@@ -121,7 +124,7 @@ def find_user(update, context):
         word = morph.parse('пост')[0]
         count = len(data[login][data[login]["password"]])
         update.message.reply_text(f'У данного пользователя '
-                                  f'{count} {word.make_agree_with_number(count).word}.')
+                                  f'{count} {word.make_agree_with_number(count).word}')
     else:
         names = []
         for key in data:
@@ -135,22 +138,55 @@ def find_user(update, context):
 
 
 def show_userpost(update, context):
-    login = update.message.text.split()[-1]
+    line = update.message.text.split()[1:]
+    login, *number = line
+    number = list(map(int, number))
     with open('user_data.json') as file:
         data = json.load(file)
     if login in data:
-        post = data[login][data[login]['password']][-1]
-        header, text, image = post
-        update.message.reply_text(header)
-        context.bot.send_photo(update.message.chat_id, photo=open(f'files/{image}', 'rb'))
-        if text:
-            update.message.reply_text(text)
+        if len(data[login][data[login]['password']]) != 0:
+            if len(number) == 1:
+                length = len(data[login][data[login]['password']])
+                if number[0] < 0:
+                    number[0] = length + number[0]
+                post = data[login][data[login]['password']][number[0]]
+                num = f'{number[0]} пост пользователя {login}:'
+                header, text, image = post
+                update.message.reply_text(num)
+                update.message.reply_text(header)
+                context.bot.send_photo(update.message.chat_id, photo=open(f'files/{image}', 'rb'))
+                if text:
+                    update.message.reply_text(text)
+            elif len(number) == 2:
+                update.message.reply_text('Коллекция постов:')
+                a, b = int(number[0]), max(1, min(5, int(number[1])))
+                for i in range(a - 1, min(a + b - 1, len(data[login][data[login]['password']]))):
+                    post = data[login][data[login]['password']][i]
+                    num = f'{i + 1} пост пользователя {login}:'
+                    header, text, image = post
+                    update.message.reply_text(num)
+                    update.message.reply_text(header)
+                    context.bot.send_photo(update.message.chat_id,
+                                           photo=open(f'files/{image}', 'rb'))
+                    if text:
+                        update.message.reply_text(text)
+            else:
+                post = data[login][data[login]['password']][-1]
+                num = f'Последний пост пользователя {login}:'
+                header, text, image = post
+                update.message.reply_text(num)
+                update.message.reply_text(header)
+                context.bot.send_photo(update.message.chat_id, photo=open(f'files/{image}', 'rb'))
+                if text:
+                    update.message.reply_text(text)
+        else:
+            update.message.reply_text('У данного пользователя нет публикаций')
     else:
         update.message.reply_text('Пользователь не найден')
 
 
 def help(update, context):
-    update.message.reply_text('Commands:\n\n'
+    update.message.reply_text('Команды:\n\n'
                               '"/register [логин] [пароль]" - логин должен состоять из нижнего и '
                               'верхнего регистров латинского алфавита, может содержать цифры\n\nПример:  '
                               '/register NewUser123 Password2022\n\n'
