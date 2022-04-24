@@ -67,11 +67,18 @@ def register(update, context):
 
 def add_new_post(update, context):
     line = update.message['caption'].split('; ')
-    login, password, header, text = line
-    login = login.split('login=')[-1]
-    password = password.split('password=')[-1]
-    header = header.split('header=')[-1]
-    text = text.split('text=')[-1]
+    try:
+        login, password, header, text = line
+        login = login.split('login=')[-1]
+        password = password.split('password=')[-1]
+        header = header.split('header=')[-1]
+        text = text.split('text=')[-1]
+    except Exception:
+        login, password, header = line
+        login = login.split('login=')[-1]
+        password = password.split('password=')[-1]
+        header = header.split('header=')[-1]
+        text = ''
 
     with open('user_data.json') as file:
         data = json.load(file)
@@ -114,7 +121,8 @@ def show_userpost(update, context):
         header, text, image = post
         update.message.reply_text(header)
         context.bot.send_photo(update.message.chat_id, photo=open(f'files/{image}', 'rb'))
-        update.message.reply_text(text)
+        if text:
+            update.message.reply_text(text)
     else:
         update.message.reply_text('Пользователь не найден')
 
