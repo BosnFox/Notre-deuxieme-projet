@@ -13,7 +13,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-TOKEN = '5159855662:AAH1JR-a_ZjypmtsiaqsEPVfTfYQSvJHGp8'
+TOKEN = open('telegram_token.txt').read()
 
 
 def cl():
