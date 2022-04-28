@@ -114,75 +114,83 @@ def add_new_post(update, context):
 
 
 def find_user(update, context):
-    login = update.message.text.split()[-1]
-    with open('user_data.json') as file:
-        data = json.load(file)
-        file.close()
-    if login in data:
-        word = morph.parse('пост')[0]
-        count = len(data[login][data[login]["password"]])
-        update.message.reply_text(f'У данного пользователя '
-                                  f'{count} {word.make_agree_with_number(count).word}'
-                                  if cl() == 'rus' else f'The number of posts of this user is {count}')
-    else:
-        names = []
-        for key in data:
-            if login in key and len(names) < 10:
-                names.append(key)
-        if names:
-            update.message.reply_text(
-                f"{phrases['findingUser']['matchesFound'][cl()]}\n' + '\n'.join(names))")
+    data = update.message.text.split()
+    if len(data) > 1:
+        login = update.message.text.split()[-1]
+        with open('user_data.json') as file:
+            data = json.load(file)
+            file.close()
+        if login in data:
+            word = morph.parse('пост')[0]
+            count = len(data[login][data[login]["password"]])
+            update.message.reply_text(f'У данного пользователя '
+                                      f'{count} {word.make_agree_with_number(count).word}'
+                                      if cl() == 'rus' else f'The number of posts of this user is {count}')
         else:
-            update.message.reply_text(phrases['findingUser']['nullFound'][cl()])
+            names = []
+            for key in data:
+                if login in key and len(names) < 10:
+                    names.append(key)
+            if names:
+                update.message.reply_text(f"{phrases['findingUser']['matchesFound'][cl()]}\n" + '\n'.join(names))
+            else:
+                update.message.reply_text(phrases['findingUser']['nullFound'][cl()])
+    else:
+        update.message.reply_text(phrases['findingUser']['nullInput'][cl()])
 
 
 def show_user_post(update, context):
-    line = update.message.text.split()[1:]
-    login, *number = line
-    number = list(map(int, number))
-    with open('user_data.json') as file:
-        data = json.load(file)
-        file.close()
-    if login in data:
-        if len(data[login][data[login]['password']]) != 0:
-            if len(number) == 1:
-                length = len(data[login][data[login]['password']])
-                if number[0] < 0:
-                    number[0] = length + number[0]
-                post = data[login][data[login]['password']][number[0]]
-                num = f"{number[0]} {phrases['showUser']['countState'][cl()]} {login}:"
-                header, text, image = post
-                update.message.reply_text(num)
-                update.message.reply_text(header)
-                context.bot.send_photo(update.message.chat_id, photo=open(f'files/{image}', 'rb'))
-                if text:
-                    update.message.reply_text(text)
-            elif len(number) == 2:
-                update.message.reply_text(phrases['showUser']['collectionShow'][cl()])
-                a, b = int(number[0]), max(1, min(5, int(number[1])))
-                for i in range(a - 1, min(a + b - 1, len(data[login][data[login]['password']]))):
-                    post = data[login][data[login]['password']][i]
-                    num = f"{i + 1} {phrases['showUser']['countState'][cl()]} {login}:"
+    try:
+        line = update.message.text.split()[1:]
+        login, *number = line
+        number = list(map(int, number))
+        with open('user_data.json') as file:
+            data = json.load(file)
+            file.close()
+        if login in data:
+            if len(data[login][data[login]['password']]) != 0:
+                if len(number) == 1:
+                    length = len(data[login][data[login]['password']])
+                    if number[0] < 0:
+                        number[0] = length + number[0]
+                    post = data[login][data[login]['password']][number[0]]
+                    num = f"{number[0]} {phrases['showUser']['countState'][cl()]} {login}:"
                     header, text, image = post
                     update.message.reply_text(num)
                     update.message.reply_text(header)
-                    context.bot.send_photo(update.message.chat_id,
-                                           photo=open(f'files/{image}', 'rb'))
+                    context.bot.send_photo(update.message.chat_id, photo=open(f'files/{image}', 'rb'))
+                    if text:
+                        update.message.reply_text(text)
+                elif len(number) == 2:
+                    update.message.reply_text(phrases['showUser']['collectionShow'][cl()])
+                    a, b = int(number[0]), max(1, min(10, int(number[1])))
+                    for i in range(a - 1, min(a + b - 1, len(data[login][data[login]['password']]))):
+                        post = data[login][data[login]['password']][i]
+                        num = f"{i + 1} {phrases['showUser']['countState'][cl()]} {login}:"
+                        header, text, image = post
+                        update.message.reply_text(num)
+                        update.message.reply_text(header)
+                        context.bot.send_photo(update.message.chat_id,
+                                               photo=open(f'files/{image}', 'rb'))
+                        if text:
+                            update.message.reply_text(text)
+                elif len(number) > 2:
+                    raise Exception()
+                else:
+                    post = data[login][data[login]['password']][-1]
+                    num = f"{phrases['showUser']['lastPost'][cl()]} {login}:"
+                    header, text, image = post
+                    update.message.reply_text(num)
+                    update.message.reply_text(header)
+                    context.bot.send_photo(update.message.chat_id, photo=open(f'files/{image}', 'rb'))
                     if text:
                         update.message.reply_text(text)
             else:
-                post = data[login][data[login]['password']][-1]
-                num = f"{phrases['showUser']['lastPost'][cl()]} {login}:"
-                header, text, image = post
-                update.message.reply_text(num)
-                update.message.reply_text(header)
-                context.bot.send_photo(update.message.chat_id, photo=open(f'files/{image}', 'rb'))
-                if text:
-                    update.message.reply_text(text)
+                update.message.reply_text(phrases['showUser']['nullPost'][cl()])
         else:
-            update.message.reply_text(phrases['showUser']['nullPost'][cl()])
-    else:
-        update.message.reply_text(phrases['showUser']['noUserFound'][cl()])
+            update.message.reply_text(phrases['showUser']['noUserFound'][cl()])
+    except Exception:
+        update.message.reply_text(phrases['showUser']['incorrectData'][cl()])
 
 
 def help(update, context):

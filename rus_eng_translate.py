@@ -80,11 +80,15 @@ phrases = {
     'findingUser': {
         'matchesFound': {
             'rus': 'Возможно, вы имели в виду пользователей:',
-            'eng': 'Did you mean:'
+            'eng': "You could mean:"
         },
         'nullFound': {
             'rus': 'Пользователь не найден',
             'eng': 'User is not found'
+        },
+        "nullInput": {
+            'rus': 'Не введено имя пользователя',
+            'eng': "User's name has not been inputted"
         }
     },
     'showUser': {
@@ -107,6 +111,12 @@ phrases = {
         'noUserFound': {
             'rus': 'Пользователь не найден',
             'eng': 'This user is not found'
+        },
+        "incorrectData": {
+            "rus": "Что-то пошло не так. Пример "
+                   "правильной формы запроса: /show_user_post [логин] [цифры, необязательный аргумент]",
+            "eng": "Deal gone wrong. An example"
+                   "of the correct form of the request: /show_user_post [login] [numbers, optional argument]"
         }
     },
     'helpNote': {
@@ -125,7 +135,10 @@ phrases = {
                'если нет, то выведет пользователей, чьи логины содержать данную '
                'строку\n\n'
                'Пример:  /find_user NewUser123\n\n'
-               '"/show_user_post [user]"\n\n',
+               '"/show_user_post [user]" - Команда показывает публикации пользователя. При отсутствии доп. аргументов показывает последнюю публикацию, при вводе '
+               'одной цифры показывается запись под данным номером, а при вводе двух - '
+               'запись под номером первой цифры и n-1 следующих записей\n\n'
+               'Для смены языка используйте команду /change_language',
         'eng': 'Commands:\n\n'
                '"/register [login] [password]" - login must consist of lower and upper cases of '
                'the Latin alphabet, may contain numbers\n\nExample: '
@@ -139,6 +152,13 @@ phrases = {
                'and if yes, it will inform about his published posts, if not, it will '
                'display users whose logins contain this string\n\n'
                'Example: /find_user NewUser123\n\n'
-               '"/show_user_post [user]"\n\n'
+               '"/show_user_post [user]"'
+               " - The command shows the user's posts."
+               " In the absence of extra arguments shows the last publication,"
+               " when entering one digit, the entry under the "
+               " given number is shown, and when entering two, the entry under the number"
+               " of the first digit and n-1 following entries is shown\n\n"
+               "Also you can use /change_language to change the language"
+
     }
 }
